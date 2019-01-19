@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="python用惯手形成路径依赖之后，老会给自己各种理由不去用R，悄悄地决定接下来一段时间只用R来玩。。 就先试着从链家网上爬一下上海的二手房房价数据，来练练手。 先看一下链家二手房页结构 https://sh.lianjia.com/ershoufang/  上方是一个位置选择模块，可以选择查看特定区域的房价，如果需要了解陆家嘴的数据，需要点选‘浦东’-‘陆家嘴’，网址长这个样子https://s">
+<meta name="keywords" content="R">
+<meta property="og:type" content="article">
+<meta property="og:title" content="R语言爬虫：rvest包爬取上海房价">
+<meta property="og:url" content="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/index.html">
+<meta property="og:site_name" content="Whatever Note">
+<meta property="og:description" content="python用惯手形成路径依赖之后，老会给自己各种理由不去用R，悄悄地决定接下来一段时间只用R来玩。。 就先试着从链家网上爬一下上海的二手房房价数据，来练练手。 先看一下链家二手房页结构 https://sh.lianjia.com/ershoufang/  上方是一个位置选择模块，可以选择查看特定区域的房价，如果需要了解陆家嘴的数据，需要点选‘浦东’-‘陆家嘴’，网址长这个样子https://s">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/首页.PNG">
+<meta property="og:image" content="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/底部.PNG">
+<meta property="og:image" content="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/房信息.PNG">
+<meta property="og:image" content="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/不和谐名称.PNG">
+<meta property="og:image" content="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/数据信息.PNG">
+<meta property="og:updated_time" content="2019-01-19T11:03:31.905Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="R语言爬虫：rvest包爬取上海房价">
+<meta name="twitter:description" content="python用惯手形成路径依赖之后，老会给自己各种理由不去用R，悄悄地决定接下来一段时间只用R来玩。。 就先试着从链家网上爬一下上海的二手房房价数据，来练练手。 先看一下链家二手房页结构 https://sh.lianjia.com/ershoufang/  上方是一个位置选择模块，可以选择查看特定区域的房价，如果需要了解陆家嘴的数据，需要点选‘浦东’-‘陆家嘴’，网址长这个样子https://s">
+<meta name="twitter:image" content="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/首页.PNG">
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>R语言爬虫：rvest包爬取上海房价 | Whatever Note</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	
+	<a href="https://github.com/wfshan" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Whatever Note</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">have fun</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.woofish.top/2019/01/19/R语言爬虫：rvest包爬取上海房价/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="wfshan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/header.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Whatever Note">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">R语言爬虫：rvest包爬取上海房价
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-19 16:22:01 / 修改时间：19:03:31" itemprop="dateCreated datePublished" datetime="2019-01-19T16:22:01+08:00">2019-01-19</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+			<span class="post-meta-divider">|</span>
+			<span title="post.wordcount"><span class="post-meta-item-icon"><i class="fa fa-file-word-o"></i></span>字数： 1.4k</span>
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                <span title="本文字数">4.6k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                <span title="阅读时长">4 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>python用惯手形成路径依赖之后，老会给自己各种理由不去用R，悄悄地决定接下来一段时间只用R来玩。。</p>
+<p>就先试着从链家网上爬一下上海的二手房房价数据，来练练手。</p>
+<h2 id="先看一下链家二手房页结构"><a href="#先看一下链家二手房页结构" class="headerlink" title="先看一下链家二手房页结构"></a>先看一下链家二手房页结构</h2><p><center> <a href="https://sh.lianjia.com/ershoufang/" target="_blank" rel="noopener">https://sh.lianjia.com/ershoufang/</a></center></p>
+<p><img src="/2019/01/19/R语言爬虫：rvest包爬取上海房价/首页.PNG" width="700" height="600"></p>
+<p>上方是一个位置选择模块，可以选择查看特定区域的房价，如果需要了解陆家嘴的数据，需要点选‘浦东’-‘陆家嘴’，网址长这个样子<a href="https://sh.lianjia.com/ershoufang/lujiazui/pg1/" target="_blank" rel="noopener">https://sh.lianjia.com/ershoufang/lujiazui/pg1/</a>，就是说我们要爬的网址大概就是上级域名+位置+页码的结构。</p>
+<p>进一步的尝试可以发现，位置有区（如浦东）和镇（陆家嘴），而且区的二手房数量是镇单位下的数量之和。所以我们开始爬时只需要遍历爬取所有镇的数据就可以达到目的，爬镇而不是区的另一个原因我们下面再讲。</p>
+<p>上图中的另一个信息是，链家上现在收录有近五万套二手房信息。而我们继续下拉网页却发现</p>
+<ul>
+<li>1.网页页码最多只能到100；</li>
+<li>2.每页只显示30条房价数据。</li>
+</ul>
+<p><img src="/2019/01/19/R语言爬虫：rvest包爬取上海房价/底部.PNG" width="700" height="600"></p>
+<p>所以如果直接用上级域名+页码的网址如<a href="https://sh.lianjia.com/ershoufang/pg2/" target="_blank" rel="noopener">https://sh.lianjia.com/ershoufang/pg2/</a>来爬取，最多只有3000条数据。当用上级域名+区+页码时，依然有一些区的二手房数量超过3000，剩下的上级域名+镇+页码格式的网址最让人省心。</p>
+<p>最后来看一下，链家上一套房的信息都有哪些：位置、房型、面积、价格等</p>
+<p><img src="/2019/01/19/R语言爬虫：rvest包爬取上海房价/房信息.PNG" width="700" height="600"></p>
+<h2 id="然后当然上R代码"><a href="#然后当然上R代码" class="headerlink" title="然后当然上R代码"></a>然后当然上R代码</h2><figure class="highlight r"><figcaption><span>[][导入包]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(rvest)<span class="comment">#&lt;-主角就是它</span></span><br><span class="line"><span class="keyword">library</span>(xml2)</span><br><span class="line"><span class="keyword">library</span>(dplyr)</span><br><span class="line"><span class="keyword">library</span>(stringr)</span><br><span class="line"><span class="keyword">library</span>(data.table)</span><br><span class="line"><span class="keyword">library</span>(tidyr)</span><br></pre></td></tr></table></figure>
+<p>前面已经确定了上级域名+镇+页码的方针，然后就是开开心心读取html位置div标签下的text，再翻译成拼音，再贴到地址中就可以一页一页爬下来了，美滋滋。</p>
+<p>但是，有些地区就是觉得自己牛逼，不仅会拼音还会加数字。</p>
+<p><img src="/2019/01/19/R语言爬虫：rvest包爬取上海房价/不和谐名称.PNG" width="400" height="300"></p>
+<p>在这里走了点弯路，不过顺道解决了R语言中汉字转拼音的问题（虽然这道题里并没用到）也稍微舒服点。</p>
+<p>所以现在是需要获取如上标签中的href，这里需要先打开一个区，再获得该区下面的镇。</p>
+<figure class="highlight r"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#获取城市中的行政区列表</span></span><br><span class="line">getdist &lt;- <span class="keyword">function</span>(city) &#123;</span><br><span class="line">  add &lt;- read_html(str_c(<span class="string">"http://"</span>,city,<span class="string">".lianjia.com/ershoufang/"</span>),encoding = <span class="string">"UTF-8"</span>)</span><br><span class="line">  </span><br><span class="line">  aa &lt;- add%&gt;%html_nodes(<span class="string">'body &gt; div:nth-child(11) &gt; div &gt; div.position &gt; dl:nth-child(2) &gt; dd &gt; div:nth-child(1) &gt; div a[href]'</span>)%&gt;%html_attrs()</span><br><span class="line">  aal &lt;- lapply(aa, <span class="keyword">function</span>(x) str_extract(x[<span class="string">'href'</span>],<span class="string">'/.*(/.*/)'</span>))</span><br><span class="line">  <span class="keyword">return</span>(aal)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#获取行政区下的镇列表</span></span><br><span class="line">gettown &lt;- <span class="keyword">function</span>(city,town) &#123;</span><br><span class="line">  add &lt;- read_html(str_c(<span class="string">"http://"</span>,city,<span class="string">".lianjia.com"</span>,town,<span class="string">"/"</span>),encoding = <span class="string">"UTF-8"</span>)</span><br><span class="line">  aa &lt;- add%&gt;%html_nodes(<span class="string">'body &gt; div:nth-child(11) &gt; div &gt; div.position &gt; dl:nth-child(2) &gt; dd &gt; div:nth-child(1) &gt; div:nth-child(2) a[href]'</span>)%&gt;%html_attrs()</span><br><span class="line">  aal &lt;- lapply(aa, <span class="keyword">function</span>(x) str_extract(x[<span class="string">'href'</span>],<span class="string">'/.*(/.*/)'</span>))</span><br><span class="line">  <span class="keyword">return</span>(aal)</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>有了以上两个函数后，就可以稍微轻松点，可以进一步获得整个城市所有镇的所有页面的房价信息。</p>
+<figure class="highlight r"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">city &lt;- <span class="string">'sh'</span></span><br><span class="line">dist &lt;- getdist(city)</span><br><span class="line">ulist&lt;-c()</span><br><span class="line"><span class="keyword">for</span> (dis <span class="keyword">in</span> dist)&#123;</span><br><span class="line">  print(dis)</span><br><span class="line">  l &lt;- unlist(gettown(city,dis))</span><br><span class="line">  ulist &lt;- c(ulist,l) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了所有的需要爬的地址 ulist 之后，就可以祭出我们重剑无锋的大循环了：</p>
+<figure class="highlight r"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">t1 &lt;- Sys.time()</span><br><span class="line">house_inf &lt;- data.frame()</span><br><span class="line"><span class="keyword">for</span> (u <span class="keyword">in</span> ulist)&#123;</span><br><span class="line">  <span class="keyword">for</span> (pg <span class="keyword">in</span> c(<span class="number">1</span>:<span class="number">100</span>))&#123;</span><br><span class="line">    url &lt;- str_c(<span class="string">"http://"</span>,city,<span class="string">".lianjia.com"</span>,u,<span class="string">"pg"</span>,pg)</span><br><span class="line">    download.file(url, destfile = <span class="string">"scrapedpage.html"</span>, quiet=<span class="literal">TRUE</span>)</span><br><span class="line">    web &lt;- read_html(<span class="string">"scrapedpage.html"</span>,encoding = <span class="string">"UTF-8"</span>)</span><br><span class="line">	<span class="comment">#本来直接read_html(url)就行，但读多了就累容易timeout，加个download.file能更壮点</span></span><br><span class="line">    <span class="comment">#print(url)</span></span><br><span class="line">    house_name &lt;- web %&gt;% html_nodes(<span class="string">".houseInfo a"</span>)%&gt;%html_text()</span><br><span class="line">    <span class="keyword">if</span> (length(house_name)==<span class="number">0</span>)&#123;</span><br><span class="line">      print(url)</span><br><span class="line">      print(pg)</span><br><span class="line">      <span class="keyword">break</span></span><br><span class="line">    &#125; </span><br><span class="line"><span class="comment">#如果一各镇只有15页数据，当读到第16页时就没有house_name信息，说明走到头了，需要跳出本次循环去别的镇逛了</span></span><br><span class="line">    house_basic_inf &lt;- web %&gt;% html_nodes(<span class="string">".houseInfo"</span>) %&gt;% html_text()</span><br><span class="line">    house_basic_inf &lt;- str_replace_all(house_basic_inf,<span class="string">" "</span>,<span class="string">""</span>)</span><br><span class="line">    house_totalprice &lt;- web %&gt;% html_nodes(<span class="string">".totalPrice"</span>) %&gt;% html_text()</span><br><span class="line">    house_totalprice &lt;- lapply(house_totalprice,<span class="keyword">function</span>(x) str_extract(x,<span class="string">'[0-9]*[0-9]'</span>))</span><br><span class="line">    house_totalprice &lt;- unlist(house_totalprice)</span><br><span class="line">    house_unitprice &lt;- web %&gt;% html_nodes(<span class="string">".unitPrice span"</span>) %&gt;% html_text()</span><br><span class="line">    house_unitprice &lt;- lapply(house_unitprice,<span class="keyword">function</span>(x) str_extract(x,<span class="string">'[0-9]*[0-9]'</span>))</span><br><span class="line">    house_unitprice &lt;- unlist(house_unitprice)</span><br><span class="line">    house_posinfo &lt;- web%&gt;% html_nodes(<span class="string">".positionInfo"</span>)%&gt;% html_text()</span><br><span class="line">    house_posinfo &lt;- unlist(lapply(house_posinfo, <span class="keyword">function</span>(x) strsplit(x,<span class="string">' - '</span>)[[<span class="number">1</span>]][<span class="number">1</span>]))</span><br><span class="line">    quyu &lt;- web %&gt;% html_nodes(<span class="string">".position div a.selected"</span>) %&gt;% html_text()</span><br><span class="line">    cit1 &lt;- rep(quyu[<span class="number">1</span>],length(house_name))</span><br><span class="line">    cit2 &lt;- rep(quyu[<span class="number">2</span>],length(house_name))</span><br><span class="line">    house &lt;- data.frame(house_name,house_basic_inf,house_posinfo,house_totalprice,house_unitprice,daqu = cit1,xiaoqu = cit2)</span><br><span class="line">    house_inf &lt;- rbind(house_inf,house)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">h&lt;-data.table(house_inf)</span><br><span class="line">housetime &lt;- Sys.time() - t1</span><br></pre></td></tr></table></figure>
+<p>最后再把这个丑姑娘稍微打扮打扮</p>
+<figure class="highlight r"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">h &lt;- unique.data.frame(h)</span><br><span class="line">h &lt;- data.table(h)</span><br><span class="line">inf&lt;-lapply(array(h$house_basic_inf),<span class="keyword">function</span>(x) &#123;</span><br><span class="line">  l&lt;-strsplit(x,split = <span class="string">'\\|'</span>)[[<span class="number">1</span>]]</span><br><span class="line">  <span class="keyword">if</span> (length(l) &gt; <span class="number">6</span>)&#123;</span><br><span class="line">    l&lt;-l[-<span class="number">1</span>]</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span>(l)</span><br><span class="line">&#125;)</span><br><span class="line">inf2&lt;-data.table(do.call(rbind,inf)[,-<span class="number">1</span>])</span><br><span class="line">names(inf2) &lt;- c(<span class="string">'rooms'</span>,<span class="string">'area'</span>,<span class="string">'orien'</span>,<span class="string">'styl'</span>,<span class="string">'et'</span>)</span><br><span class="line">h &lt;- cbind(h,inf2[,-<span class="number">1</span>])</span><br><span class="line">h[!h$et%<span class="keyword">in</span>%c(<span class="string">"无电梯"</span>,<span class="string">"有电梯"</span>),<span class="string">'et'</span>]&lt;-<span class="string">'其他'</span></span><br><span class="line">unique(h$et)</span><br><span class="line">h&lt;-h[,-<span class="string">'house_basic_inf'</span>]</span><br><span class="line">h&lt;-separate(h,house_posinfo,into=c(<span class="string">'height'</span>,<span class="string">'storeys'</span>,<span class="string">'age'</span>))</span><br><span class="line">h&lt;-h[!is.na(h$age),]</span><br><span class="line">write.csv(h,file=<span class="string">'E:/desktop/sh_house_inf.csv'</span>,row.names=<span class="literal">FALSE</span>)</span><br></pre></td></tr></table></figure>
+<p>到此我们拿到了这些东西，</p>
+<p><img src="/2019/01/19/R语言爬虫：rvest包爬取上海房价/数据信息.PNG" width="900" height="600"></p>
+<p>共5万3千条，比开始时说的近五万条 要多，可能是因为一些房有多条，或者前文的数据没把上海周边地区算进去。懒得求证了~</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>拿到数据之后，就可以做一些奇怪的事了，比如做个可视化，比如做个房价预测模型。</p>
+<p>当然我这种正经人不会闲着去做奇怪的事</p>
+<hr>
+<p>参考<br><a href="http://m.sohu.com/a/161669449_466874" target="_blank" rel="noopener">R语言爬虫利器：rvest包+SelectorGadget抓取链家杭州二手房数据</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/R/" rel="tag"># R</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/14/上瘾五百年/" rel="next" title="上瘾五百年">
+                <i class="fa fa-chevron-left"></i> 上瘾五百年
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div id="gitalk-container">
+    </div>
+    
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/header.jpg" alt="wfshan">
+            
+              <p class="site-author-name" itemprop="name">wfshan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#先看一下链家二手房页结构"><span class="nav-number">1.</span> <span class="nav-text">先看一下链家二手房页结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#然后当然上R代码"><span class="nav-number">2.</span> <span class="nav-text">然后当然上R代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后"><span class="nav-number">3.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">wfshan</span>
+
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">9 分钟</span>
+  
+</div>
+
+
+  <div class="powered-by"> <a href="/" class="theme-link">wfshan</a> 个人站点</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">博客  </div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+  
+  
+  <script id="ribbon" size="300" alpha="0.6" zindex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+
+  
+  
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.css">
+
+  
+  
+  <script src="//cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
+
+   <script>
+        var gitalk = new Gitalk({
+          clientID: '',
+          clientSecret: '',
+          repo: 'git@github.com:wfshan/wfshan.github.io.git',
+          owner: 'wfshan',
+          admin: [''],
+          id: md5(location.pathname),
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')
+       </script>
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
