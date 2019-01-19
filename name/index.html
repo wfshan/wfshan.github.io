@@ -651,6 +651,32 @@
 
 
   
+  
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+
+  
+  
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.css">
+
+  
+  
+  <script src="//cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
+
+   <script>
+        var gitalk = new Gitalk({
+          clientID: 'be6d2d781f3342bc656c',
+          clientSecret: '2cb0449b94bb76cc346fcba88750d0e6d0681897',
+          repo: 'wfshan.github.io',
+          owner: 'wfshan',
+          admin: ['wfshan'],
+          id: md5(location.pathname),
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')
+       </script>
+
+
+  
 
 
 
