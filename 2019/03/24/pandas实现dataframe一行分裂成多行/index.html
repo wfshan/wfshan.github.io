@@ -102,18 +102,23 @@
 
 
 
-  <meta name="description" content="[]123456789101112# -*- coding: utf-8 -*-&quot;&quot;&quot;Created on Sun Mar 24 14:35:15 2019@author: wfshan&quot;&quot;&quot;import pandas as pdfrom datetime import datetime,timedeltaimport timeimport random">
+  <meta name="description" content="最近的工作中常会碰到这样一种情况，既清洗数据时，需要根据某个条件将一行数据扩展成多行，来方便进一步的数据处理。 比如有一张表，有项目、开始日期、结束时间和花费这三个字段，每行数据表示某一项目在某段时间的花费，现在需要知道全时间段每一天的所有花费，就需将每段时间的花费均摊到每一日，以获得一张单日花费情况的新表。 大周末的躺到没力气多废话，造个表先： []12345678910111213141516">
 <meta name="keywords" content="python">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pandas实现dataframe一行分裂成多行">
 <meta property="og:url" content="http://www.woofish.top/2019/03/24/pandas实现dataframe一行分裂成多行/index.html">
 <meta property="og:site_name" content="Whatever Note">
-<meta property="og:description" content="[]123456789101112# -*- coding: utf-8 -*-&quot;&quot;&quot;Created on Sun Mar 24 14:35:15 2019@author: wfshan&quot;&quot;&quot;import pandas as pdfrom datetime import datetime,timedeltaimport timeimport random">
+<meta property="og:description" content="最近的工作中常会碰到这样一种情况，既清洗数据时，需要根据某个条件将一行数据扩展成多行，来方便进一步的数据处理。 比如有一张表，有项目、开始日期、结束时间和花费这三个字段，每行数据表示某一项目在某段时间的花费，现在需要知道全时间段每一天的所有花费，就需将每段时间的花费均摊到每一日，以获得一张单日花费情况的新表。 大周末的躺到没力气多废话，造个表先： []12345678910111213141516">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-03-24T07:16:42.837Z">
+<meta property="og:image" content="http://www.woofish.top/2019/03/24/pandas实现dataframe一行分裂成多行/df.png">
+<meta property="og:image" content="http://www.woofish.top/2019/03/24/pandas实现dataframe一行分裂成多行/df2.png">
+<meta property="og:image" content="http://www.woofish.top/2019/03/24/pandas实现dataframe一行分裂成多行/rpart.png">
+<meta property="og:image" content="http://www.woofish.top/2019/03/24/pandas实现dataframe一行分裂成多行/out.png">
+<meta property="og:updated_time" content="2019-03-24T08:22:18.023Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pandas实现dataframe一行分裂成多行">
-<meta name="twitter:description" content="[]123456789101112# -*- coding: utf-8 -*-&quot;&quot;&quot;Created on Sun Mar 24 14:35:15 2019@author: wfshan&quot;&quot;&quot;import pandas as pdfrom datetime import datetime,timedeltaimport timeimport random">
+<meta name="twitter:description" content="最近的工作中常会碰到这样一种情况，既清洗数据时，需要根据某个条件将一行数据扩展成多行，来方便进一步的数据处理。 比如有一张表，有项目、开始日期、结束时间和花费这三个字段，每行数据表示某一项目在某段时间的花费，现在需要知道全时间段每一天的所有花费，就需将每段时间的花费均摊到每一日，以获得一张单日花费情况的新表。 大周末的躺到没力气多废话，造个表先： []12345678910111213141516">
+<meta name="twitter:image" content="http://www.woofish.top/2019/03/24/pandas实现dataframe一行分裂成多行/df.png">
 
 
 
@@ -361,7 +366,7 @@
                 
               
 
-              <time title="创建时间：2019-03-24 15:14:25 / 修改时间：15:16:42" itemprop="dateCreated datePublished" datetime="2019-03-24T15:14:25+08:00">2019-03-24</time>
+              <time title="创建时间：2019-03-24 15:14:25 / 修改时间：16:22:18" itemprop="dateCreated datePublished" datetime="2019-03-24T15:14:25+08:00">2019-03-24</time>
             
 
             
@@ -398,7 +403,7 @@
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
             </span>
 			<span class="post-meta-divider">|</span>
-			<span title="post.wordcount"><span class="post-meta-item-icon"><i class="fa fa-file-word-o"></i></span>字数： 25</span>
+			<span title="post.wordcount"><span class="post-meta-item-icon"><i class="fa fa-file-word-o"></i></span>字数： 899</span>
 
           
 
@@ -413,7 +418,7 @@
                   <i class="fa fa-file-word-o"></i>
                 </span>
                 
-                <span title="本文字数">178</span>
+                <span title="本文字数">2.5k</span>
               
 
               
@@ -425,7 +430,7 @@
                   <i class="fa fa-clock-o"></i>
                 </span>
                 
-                <span title="阅读时长">1 分钟</span>
+                <span title="阅读时长">2 分钟</span>
               
             </div>
           
@@ -445,7 +450,32 @@
       
 
       
-        <figure class="highlight r"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">Created on Sun Mar 24 14:35:15 2019</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">@author: wfshan</span></span><br><span class="line"><span class="string">"</span><span class="string">""</span></span><br><span class="line">import pandas as pd</span><br><span class="line">from datetime import datetime,timedelta</span><br><span class="line">import time</span><br><span class="line">import random</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        <p>最近的工作中常会碰到这样一种情况，既清洗数据时，需要根据某个条件将一行数据扩展成多行，来方便进一步的数据处理。</p>
+<p>比如有一张表，有项目、开始日期、结束时间和花费这三个字段，每行数据表示某一项目在某段时间的花费，现在需要知道全时间段每一天的所有花费，就需将每段时间的花费均摊到每一日，以获得一张单日花费情况的新表。</p>
+<p>大周末的躺到没力气多废话，造个表先：</p>
+<figure class="highlight python"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">Created on Sun Mar 24 14:35:15 2019</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">@author: wfshan</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime,timedelta</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">a1=(<span class="number">2018</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>)              <span class="comment">#设置开始日期时间元组（2018-01-01 00：00：00）</span></span><br><span class="line">a2=(<span class="number">2018</span>,<span class="number">12</span>,<span class="number">31</span>,<span class="number">23</span>,<span class="number">59</span>,<span class="number">59</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>)    <span class="comment">#设置结束日期时间元组（2018-12-31 23：59：59）</span></span><br><span class="line"></span><br><span class="line">start=time.mktime(a1)    <span class="comment">#生成开始时间戳</span></span><br><span class="line">end=time.mktime(a2)      <span class="comment">#生成结束时间戳</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#随机生成10个日期字符串</span></span><br><span class="line">sdate = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>):      </span><br><span class="line">    t=random.randint(start,end)    <span class="comment">#在开始和结束时间戳中随机取出一个</span></span><br><span class="line">    date_touple=time.localtime(t)          <span class="comment">#将时间戳生成时间元组</span></span><br><span class="line">    date=time.strftime(<span class="string">"%Y-%m-%d"</span>,date_touple)  <span class="comment">#将时间元组转成格式化字符串（1976-05-21）</span></span><br><span class="line">    sdate.append(date)</span><br><span class="line"></span><br><span class="line"><span class="comment">#基于开始的日期生成改日期后15天的日期</span></span><br><span class="line">edate = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> sdate:</span><br><span class="line">    date = datetime.strptime(i, <span class="string">"%Y-%m-%d"</span>)</span><br><span class="line">    date += timedelta(days=<span class="number">15</span>)</span><br><span class="line">    date = date.strftime(<span class="string">"%Y-%m-%d"</span>)</span><br><span class="line">    edate.append(date)</span><br><span class="line"><span class="comment">#生成花费</span></span><br><span class="line">spend = [random.randint(<span class="number">100</span>,<span class="number">1000</span>) <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">10</span>)]</span><br><span class="line"><span class="comment">#构造数据表</span></span><br><span class="line">df = pd.DataFrame(&#123;<span class="string">'sdate'</span>:sdate,<span class="string">'edate'</span>:edate,<span class="string">'spend'</span>:spend&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>构造出来的表df 姑且长下图这样。</p>
+<p><img src="/2019/03/24/pandas实现dataframe一行分裂成多行/df.png" width="400" height="500"></p>
+<p>如第一行表示a项目，在2018-11-08到2018-11-23期间花了578。如果要转成在这期间每个日期以及每个日期的花费组成的表，需要解决两个问题：</p>
+<ul>
+<li>怎么生成首尾日期间的所有日期</li>
+<li>怎么将一行多个日期数据展开为多行每行一个日期</li>
+</ul>
+<p>第一个问题的解决方案是直接用python自带的datetime库构造如下函数，输入开始和结束日期，返回包含期间的每个日期的数列：</p>
+<figure class="highlight python"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#获取开始日期和结束日期之间的所有日期函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getBetweenDay</span><span class="params">(sdate,edate)</span>:</span></span><br><span class="line">    date_list = [] <span class="comment">#来一个空列放每个日期</span></span><br><span class="line">    begin_date = datetime.strptime(sdate, <span class="string">"%Y-%m-%d"</span>)</span><br><span class="line">    end_date = datetime.strptime(edate, <span class="string">"%Y-%m-%d"</span>)</span><br><span class="line">    <span class="keyword">while</span> begin_date &lt;= end_date:<span class="comment">#开始日期加一天，直到日期等于结束日期</span></span><br><span class="line">        date_str = begin_date.strftime(<span class="string">"%Y-%m-%d"</span>)</span><br><span class="line">        date_list.append(date_str)</span><br><span class="line">        begin_date += timedelta(days=<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> date_list</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>在解决第二个问题前，先处理下费用均摊，直接用项目花费除以每个时间段包含的天数：</p>
+<figure class="highlight python"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#根据sdate和edate,生成期间所有日期的数列</span></span><br><span class="line">df[<span class="string">'days'</span>] = df.apply(<span class="keyword">lambda</span> x:getBetweenDay(x.sdate,x.edate),axis=<span class="number">1</span>)</span><br><span class="line">df[<span class="string">'daylen'</span>] = df[<span class="string">'days'</span>].apply(len)</span><br><span class="line">df[<span class="string">'new_spend'</span>] = df[<span class="string">'spend'</span>]/df[<span class="string">'daylen'</span>]<span class="comment">#获得均天的费用</span></span><br></pre></td></tr></table></figure>
+<p>新增几个字段后，膨胀的表长下图这样</p>
+<p><img src="/2019/03/24/pandas实现dataframe一行分裂成多行/df2.png" width="700" height="500"></p>
+<p>上诉第二个问题的解决思路是，单由days列的每一行都自行组成由改行index和日期组成的数组，再将每一行的数组组合成一个新的days和index的表，图为部分：</p>
+<p><img src="/2019/03/24/pandas实现dataframe一行分裂成多行/rpart.png" width="200" height="800"></p>
+<p>然后再以index为key,和原表merge。然后就得到想要的结果了~</p>
+<figure class="highlight python"><figcaption><span>[]</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">df.reset_index(inplace=<span class="keyword">True</span>)</span><br><span class="line">rpart = pd.concat([pd.Series(row[<span class="string">'index'</span>],row[<span class="string">'days'</span>]) <span class="keyword">for</span> _, row <span class="keyword">in</span> df.iterrows()]).reset_index()</span><br><span class="line">rpart.columns=[<span class="string">'date'</span>,<span class="string">'index'</span>]</span><br><span class="line">df = pd.merge(df,rpart,how=<span class="string">'left'</span>,on=<span class="string">'index'</span>)</span><br><span class="line">out = df.groupby([<span class="string">'date'</span>])[<span class="string">'new_spend'</span>].sum().reset_index()</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/03/24/pandas实现dataframe一行分裂成多行/out.png" width="200" height="800"></p>
+<p>其实还可以用dataframe自带的stack() 方法，不过限制多一些。</p>
+<p>以上~</p>
+<p>有点尴尬，写着写着没得写的感觉</p>
+
       
     </div>
 
@@ -693,7 +723,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点阅读时长">8 分钟</span>
+    <span title="站点阅读时长">10 分钟</span>
   
 </div>
 
